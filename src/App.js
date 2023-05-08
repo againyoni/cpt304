@@ -16,7 +16,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 export default function App() {
   const { isLoaded } = useLoadScript({
     //id: 'doyeonkim-cpt304',
-    googleMapsApiKey: "AIzaSyAOsGufZ60m5bkegP00ueO17IyotCpB6vw",
+    googleMapsApiKey: "Google API",
     libraries: ['places'],
   });
 
@@ -117,7 +117,7 @@ function Map() {
             setMarkerSelected(marker);
             
             // call address
-            Geocode.setApiKey("AIzaSyAOsGufZ60m5bkegP00ueO17IyotCpB6vw");
+            Geocode.setApiKey("Google API");
             Geocode.fromLatLng(marker.lat, marker.lng).then(
               (response) => {
                 console.log('geocode');
@@ -335,7 +335,7 @@ const Weather = ({ marker, map, unix }) => {
   React.useEffect(() => {
     // call history weather
     const api = {
-      key: "cb8cfc7887558ba18b49e6cb7678238a",
+      key: "historical weather API",
       base: "https://api.openweathermap.org/data/3.0/onecall/timemachine",
     };
 
