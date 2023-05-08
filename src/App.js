@@ -350,7 +350,7 @@ const Holidays = ({ Country, State, City, CountryName, StateName, CityName, setH
             {(() => {
               //console.log(selector === days)
               if (JSON.stringify(selector) == JSON.stringify(days)) {
-                return (<span>{['     ', weather.main]}</span>);
+                return(<Weather weather={weather} />);
               }
             })()}
           </div>
@@ -367,6 +367,14 @@ const Holidays = ({ Country, State, City, CountryName, StateName, CityName, setH
 	</div>
   );
 
+}
+
+const Weather = ({ weather }) => {
+  return (
+    <div>
+      <span>{['     ', weather.main]}</span>
+    </div>
+  );
 }
 
 const Hotels = ({ hotels }) => {
