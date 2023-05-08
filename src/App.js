@@ -16,7 +16,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 export default function App() {
   const { isLoaded } = useLoadScript({
     //id: 'doyeonkim-cpt304',
-    googleMapsApiKey: "AIzaSyAOsGufZ60m5bkegP00ueO17IyotCpB6vw", // 
+    googleMapsApiKey: "AIzaSyAOsGufZ60m5bkegP00ueO17IyotCpB6vw",
     libraries: ['places'],
   });
 
@@ -169,9 +169,6 @@ function Map() {
               <div style={{ whiteSpace: 'pre-wrap' }}>{City}</div>
               <div class='scrollFix'>
                 <Holidays
-                  Country={Country}
-                  State={State}
-                  City={City}
                   CountryName={CountryName}
                   StateName={StateName}
                   CityName={CityName}
@@ -231,7 +228,7 @@ const PlacesAutocomplete = ({ setMarkers, map, setMap }) => {
 }
 
 
-const Holidays = ({ Country, State, City, CountryName, StateName, CityName, setHolidays, marker, map }) => {
+const Holidays = ({ CountryName, StateName, CityName, setHolidays, marker, map }) => {
   const [weather, setWeather] = React.useState([]);
   const [selector, setSelector] = React.useState(null);
   const [hotels, setHotels] = React.useState([]);
