@@ -1,5 +1,5 @@
 ## Getting Started with the project run
-`!git clone`
+`!git clone https://github.com/againyoni/cpt304`
 
 Clone the repository first.
 
