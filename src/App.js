@@ -335,7 +335,7 @@ const Weather = ({ marker, map, unix }) => {
   React.useEffect(() => {
     // call history weather
     const api = {
-      key: "historical weather API",
+      key: "Historical weather API",
       base: "https://api.openweathermap.org/data/3.0/onecall/timemachine",
     };
 
