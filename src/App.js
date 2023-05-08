@@ -184,6 +184,7 @@ function Map() {
   )
 }
 
+// further process of usePlacesAutocomplete for searching locations
 const PlacesAutocomplete = ({ setMarkers, map, setMap }) => {
   const {
     ready,
@@ -227,11 +228,12 @@ const PlacesAutocomplete = ({ setMarkers, map, setMap }) => {
   )
 }
 
-
+// retrieves the list of holidays by country, state and city
+// as in some countries, holidays vary by state or city as well
 const Holidays = ({ CountryName, StateName, CityName, setHolidays, marker, map }) => {
-  const [weather, setWeather] = React.useState([]);
+  const [unix, setUnix] = React.useState(null); // const to save date unix value for weather
   const [selector, setSelector] = React.useState(null);
-  const [hotels, setHotels] = React.useState([]);
+
 
   const jsonResult = require ('./holidays_dict.json');
   console.log(jsonResult);
@@ -266,14 +268,12 @@ const Holidays = ({ CountryName, StateName, CityName, setHolidays, marker, map }
     })
   }
 
-  
-  
   return (
     <div>
 	  <hr/>
       <div> Public Holidays : </div>
       <div>
-      {days_list.map((days, index) => (
+      {days_list.map((days, index) => ( // for each holiday, process following
         <div key={index}>
           <label>
             <input
@@ -291,53 +291,12 @@ const Holidays = ({ CountryName, StateName, CityName, setHolidays, marker, map }
                   if (!date.includes("2022")) {
                     date = `2022-${date}`;
                   }
-
-                  //console.log(date)
                   var unix = Math.round(new Date(date).getTime()/1000);
-                  //console.log(unix)
-            
-                  // call history weather
-                  const api = {
-                    key: "cb8cfc7887558ba18b49e6cb7678238a",
-                    base: "https://api.openweathermap.org/data/3.0/onecall/timemachine",
-                  };
-            
-                  const url = `${api.base}?lat=${marker.lat}&lon=${marker.lng}&appid=${api.key}&dt=${unix}`;
-                  axios.get(url).then((responseData) => {
-                    //console.log('weather',responseData);
-                    const data = responseData.data.data[0];
-                    console.log('weather',data);
-                    setWeather({
-                      id: data.weather[0].id,
-                      temperature: data.temp,
-                      main: data.weather[0].main,
-                      loading: false,
-                    });
-                  });
-
-                  // find neighboring hotels
-                  //--> test
-                  // https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=31.278687,120.73932016666667&keyword=Hotel&radius=5000&key=AIzaSyAOsGufZ60m5bkegP00ueO17IyotCpB6vw
-                  var pyrmont = new window.google.maps.LatLng(marker.lat, marker.lng);
-                  var request = {
-                    location: pyrmont,
-                    radius: '5000',
-                    keyword: 'hotel'
-                  };
-                  let service = new window.google.maps.places.PlacesService(map);
-                  service.nearbySearch(request, function(results, status){
-                    if (status == window.google.maps.places.PlacesServiceStatus.OK) {
-                      for (var i = 0; i < results.length; i++) {
-                        var place = results[i];
-                        console.log(place);
-                        //createMarker(results[i]);
-                      }
-                      setHotels(results);
-                    }
-                  });
+                  setUnix(unix); // save unix data
+                  
                 } else {
                   setSelector(null);
-                  setHotels([]);
+                  setUnix(null);
                 }
               }}
             />
@@ -347,14 +306,16 @@ const Holidays = ({ CountryName, StateName, CityName, setHolidays, marker, map }
             {(() => {
               //console.log(selector === days)
               if (JSON.stringify(selector) == JSON.stringify(days)) {
-                return(<Weather weather={weather} />);
+                // get and display weather data
+                return(<Weather marker={marker} map={map} unix={unix} />);
               }
             })()}
           </div>
           <div>
             {(() => {
+              // get and display list of hotels
               if(selector && (JSON.stringify(selector) == JSON.stringify(days))) {
-                return(<Hotels hotels={hotels} />);
+                return(<Hotels marker={marker} map={map} />);
               }
             })()}
           </div>
@@ -366,7 +327,32 @@ const Holidays = ({ CountryName, StateName, CityName, setHolidays, marker, map }
 
 }
 
-const Weather = ({ weather }) => {
+// request for historical weather information
+const Weather = ({ marker, map, unix }) => {
+  const [weather, setWeather] = React.useState([]);
+
+  // call only once
+  React.useEffect(() => {
+    // call history weather
+    const api = {
+      key: "cb8cfc7887558ba18b49e6cb7678238a",
+      base: "https://api.openweathermap.org/data/3.0/onecall/timemachine",
+    };
+
+    const url = `${api.base}?lat=${marker.lat}&lon=${marker.lng}&appid=${api.key}&dt=${unix}`;
+    axios.get(url).then((responseData) => {
+      //console.log('weather',responseData);
+      const data = responseData.data.data[0];
+      console.log('weather',data);
+      setWeather({
+        id: data.weather[0].id,
+        temperature: data.temp,
+        main: data.weather[0].main,
+        loading: false,
+      });
+    });
+  }, []);
+  
   return (
     <div>
       <span>{['     ', weather.main]}</span>
@@ -374,7 +360,34 @@ const Weather = ({ weather }) => {
   );
 }
 
-const Hotels = ({ hotels }) => {
+// request for list of neighboring hotels
+const Hotels = ({ marker, map }) => {
+  const [hotels, setHotels] = React.useState([]);
+
+  // call only once
+  React.useEffect(() => {
+    // find neighboring hotels
+    //--> test
+    // https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=31.278687,120.73932016666667&keyword=Hotel&radius=5000&key=AIzaSyAOsGufZ60m5bkegP00ueO17IyotCpB6vw
+    var pyrmont = new window.google.maps.LatLng(marker.lat, marker.lng);
+    var request = {
+      location: pyrmont,
+      radius: '5000',
+      keyword: 'hotel'
+    };
+    let service = new window.google.maps.places.PlacesService(map);
+    service.nearbySearch(request, function(results, status){
+      if (status == window.google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+          var place = results[i];
+          console.log(place);
+          //createMarker(results[i]);
+        }
+        setHotels(results);
+      }
+    });
+  }, []);
+  
   return (
     <div class='scrollWithLeftSpace'>
       <span>Near Hotels :</span>
