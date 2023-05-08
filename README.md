@@ -7,7 +7,7 @@ Clone the repository first.
 
 Because there is 'node_modules' folder, no need for 'npm install'.
 
-'npm start' in the cloned folder would run the project.
+'npm start' in the cloned folder will run the project.
 
 ## Awareness
 There is API keys installed in App.js file. However, it is unavailable for viewers.
